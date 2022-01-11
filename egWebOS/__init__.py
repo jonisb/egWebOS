@@ -12,7 +12,7 @@ eg.RegisterPlugin(
     guid="{523fa3a6-f1a9-405d-a28a-8d211f76562b}",
     canMultiLoad=True,
     createMacrosOnAdd=False,
-    url="http://www.eventghost.net/forum/viewforum.php?f=9&sid=291a5f7c46f3795101a0d34c17ad545c",  # TODO: Create support thread and link.
+    url="https://github.com/jonisb/egWebOS/issues",  # TODO: Create support thread and link.
     description="""Adds actions to control WebOS devices like LG TVs.""",  # TODO: Add description, use <rst>?
 )
 
