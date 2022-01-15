@@ -5,7 +5,7 @@ WebOS support plugin for EventGhost
 from __future__ import print_function, unicode_literals
 
 eg.RegisterPlugin(
-    name="egWebOS",
+    name="WebOS connect",
     author="Joni Borén",
     version="0.0.0",
     kind="external",
