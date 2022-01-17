@@ -99,6 +99,7 @@ class WebOS(eg.PluginClass):
             sizer_2.Add(self.IP, 0, 0, 0)
 
             self.Search = wx.Button(self, wx.ID_ANY, "Search")
+            self.Search.SetToolTipString("Search for devices to control over the network")
             self.Search.Bind(wx.EVT_BUTTON, Search)
             sizer_2.Add(self.Search, 0, 0, 0)
 
@@ -109,9 +110,11 @@ class WebOS(eg.PluginClass):
             sizer_3.Add(label_code, 0, 0, 0)
 
             self.Code = wx.TextCtrl(self, wx.ID_ANY, Code)
+            self.Code.SetToolTipString("This code is used to access the WebOS device")
             sizer_3.Add(self.Code, 0, 0, 0)
 
             self.Register = wx.Button(self, wx.ID_ANY, "Register")
+            self.Register.SetToolTipString("Connect using code or request a new code from device")
             self.Register.Bind(wx.EVT_BUTTON, Register)
             sizer_3.Add(self.Register, 0, 0, 0)
 
