@@ -23,7 +23,7 @@ class WebOS(eg.PluginClass):
     def __init__(self):  # TODO:
         pass
 
-    def Configure(self, IP=''):  # TODO: Separate args or combined?
+    def Configure(self, IP='', Code=''):  # TODO: Separate args or combined?
         def initPanel(self):
             def Search(event):
                 import threading, Queue
@@ -82,6 +82,15 @@ class WebOS(eg.PluginClass):
             self.Search.Bind(wx.EVT_BUTTON, Search)
             sizer_2.Add(self.Search, 0, 0, 0)
 
+            sizer_3 = wx.BoxSizer(wx.HORIZONTAL)
+            sizer_1.Add(sizer_3, 1, wx.EXPAND, 0)
+
+            label_code = wx.StaticText(self, wx.ID_ANY, "Code")
+            sizer_3.Add(label_code, 0, 0, 0)
+
+            self.Code = wx.TextCtrl(self, wx.ID_ANY, Code)
+            sizer_3.Add(self.Code, 0, 0, 0)
+
             self.SetSizer(sizer_1)
             sizer_1.Fit(self)
 
@@ -91,9 +100,9 @@ class WebOS(eg.PluginClass):
         initPanel(panel)
 
         while panel.Affirmed():
-            panel.SetResult(panel.IP.GetValue())
+            panel.SetResult(panel.IP.GetValue(), panel.Code.GetValue())
 
-    def __start__(self, IP):  # TODO: Match Configure
+    def __start__(self, IP, Code):  # TODO: Match Configure
         pass
 
     def __stop__(self):  # TODO:
