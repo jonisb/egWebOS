@@ -3,6 +3,7 @@
 WebOS support plugin for EventGhost
 """
 from __future__ import print_function, unicode_literals
+from pywebostv.connection import WebOSClient
 
 eg.RegisterPlugin(
     name="WebOS connect",
@@ -67,6 +68,25 @@ class WebOS(eg.PluginClass):
                     dlg.Destroy()
                 t1.join()
 
+            def Register(event):
+                store = {'client_key': self.Code.GetValue()}
+                client = WebOSClient(self.IP.GetValue())
+                try:
+                    client.connect()
+                except Exception: # todo: better exception
+                    eg.PrintError("Can't connect to device") # todo:
+                else:
+                    try:
+                        for status in client.register(store):
+                            if status == WebOSClient.PROMPTED:
+                                print("Please accept the connect on the TV!") # todo: show dialog
+                            elif status == WebOSClient.REGISTERED:
+                                print("Registration successful!")
+                                self.Code.SetValue(store['client_key'])
+                    except Exception: # todo: better exception
+                        eg.PrintError("Failed to register.") # todo:
+                    client.close()
+
             sizer_1 = wx.BoxSizer(wx.VERTICAL)
 
             sizer_2 = wx.BoxSizer(wx.HORIZONTAL)
@@ -90,6 +110,10 @@ class WebOS(eg.PluginClass):
 
             self.Code = wx.TextCtrl(self, wx.ID_ANY, Code)
             sizer_3.Add(self.Code, 0, 0, 0)
+
+            self.Register = wx.Button(self, wx.ID_ANY, "Register")
+            self.Register.Bind(wx.EVT_BUTTON, Register)
+            sizer_3.Add(self.Register, 0, 0, 0)
 
             self.SetSizer(sizer_1)
             sizer_1.Fit(self)
