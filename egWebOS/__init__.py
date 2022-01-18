@@ -18,13 +18,14 @@ eg.RegisterPlugin(
 )
 
 from pywebostv.discovery import discover
+from pywebostv.controls import MediaControl, TvControl, SystemControl, ApplicationControl, InputControl, SourceControl
 
 
 class WebOS(eg.PluginClass):
     def __init__(self):  # TODO:
         pass
 
-    def Configure(self, IP='', Code=''):  # TODO: Separate args or combined?
+    def Configure(self, IP='', Code='', Subscriptions=[]):  # TODO: Separate args or combined?
         def initPanel(self):
             def Search(event):
                 import threading, Queue
@@ -118,6 +119,21 @@ class WebOS(eg.PluginClass):
             self.Register.Bind(wx.EVT_BUTTON, Register)
             sizer_3.Add(self.Register, 0, 0, 0)
 
+            label_2 = wx.StaticText(self, wx.ID_ANY, "Choose what events to subscribe to from device")
+            sizer_1.Add(label_2, 0, 0, 0)
+
+            choices = []
+            for control in ('MediaControl', 'TvControl', 'SystemControl', 'ApplicationControl', 'InputControl', 'SourceControl'):
+                for key, value in globals()[control].COMMANDS.items():
+                    if 'subscription' in value and value['subscription'] == True:
+                        choices.append(control + '.' + key)
+
+            self.Subscriptions = wx.ListBox(self, wx.ID_ANY, choices=choices, style=wx.LB_MULTIPLE)
+            for i, s in enumerate(self.Subscriptions.GetStrings()):
+                if s in Subscriptions:
+                    self.Subscriptions.SetSelection(i)
+            sizer_1.Add(self.Subscriptions, 0, 0, 0)
+
             self.SetSizer(sizer_1)
             sizer_1.Fit(self)
 
@@ -127,9 +143,12 @@ class WebOS(eg.PluginClass):
         initPanel(panel)
 
         while panel.Affirmed():
-            panel.SetResult(panel.IP.GetValue(), panel.Code.GetValue())
+            selections = []
+            for sel in panel.Subscriptions.GetSelections():
+                selections.append(panel.Subscriptions.GetString(sel))
+            panel.SetResult(panel.IP.GetValue(), panel.Code.GetValue(), selections)
 
-    def __start__(self, IP, Code):  # TODO: Match Configure
+    def __start__(self, IP, Code, Subscriptions):  # TODO: Match Configure
         pass
 
     def __stop__(self):  # TODO:
