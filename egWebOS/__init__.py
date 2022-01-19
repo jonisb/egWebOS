@@ -17,8 +17,30 @@ eg.RegisterPlugin(
     description="""Adds actions to control WebOS devices like LG TVs.""",  # TODO: Add description, use <rst>?
 )
 
+from functools import partial
 from pywebostv.discovery import discover
 from pywebostv.controls import MediaControl, TvControl, SystemControl, ApplicationControl, InputControl, SourceControl
+
+
+def control_events(status_of_call, payload, control=None, self=None):
+    if status_of_call:
+        # Successful response from TV.
+        # payload is a dict or an object (see API details)
+        if isinstance(payload, type('')):
+            self.TriggerEvent(control + '.' + payload)
+        else:
+            try:
+                for key in payload:
+                    if key is not 'callerId':
+                        try:
+                            self.TriggerEvent(control + '.' + key, payload[key])
+                        except TypeError:
+                            eg.PrintError("WebOS: Unknown event:", control, payload)
+            except AttributeError:
+                eg.PrintError("WebOS: Unknown event:", control, payload)
+    else:
+        # payload is the error string.
+        eg.PrintError("Error message: ", control, payload)
 
 
 class WebOS(eg.PluginClass):
@@ -160,6 +182,16 @@ class WebOS(eg.PluginClass):
                 eg.PrintError("WebOS: Device registration problem", status)
                 raise Exception('No access configured')
 
+        self.controls = {}
+        self.subscribed = []
+        for control in Subscriptions:
+            control, _, key = control.partition('.')
+            self.controls[control] = globals()[control](self.client)
+            self.controls[control].subscribe(key, self.controls[control].COMMANDS[key])(partial(control_events, control=control, self=self))
+            self.subscribed.append(self.controls[control].unsubscribe(key, self.controls[control].COMMANDS[key]))
+
     def __stop__(self):  # TODO:
+        for control in self.subscribed:
+            control()
         self.client.close()
         del self.client
