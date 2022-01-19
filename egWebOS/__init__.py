@@ -153,5 +153,13 @@ class WebOS(eg.PluginClass):
             eg.PrintError("WebOS: Please get an access code in the config.")
             raise Exception('No access configured')
 
+        self.client = WebOSClient(IP)
+        self.client.connect()
+        for status in self.client.register({'client_key': Code}):
+            if status is not WebOSClient.REGISTERED:
+                eg.PrintError("WebOS: Device registration problem", status)
+                raise Exception('No access configured')
+
     def __stop__(self):  # TODO:
-        pass
+        self.client.close()
+        del self.client
