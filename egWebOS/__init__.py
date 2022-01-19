@@ -149,7 +149,9 @@ class WebOS(eg.PluginClass):
             panel.SetResult(panel.IP.GetValue(), panel.Code.GetValue(), selections)
 
     def __start__(self, IP, Code, Subscriptions):  # TODO: Match Configure
-        pass
+        if not Code:
+            eg.PrintError("WebOS: Please get an access code in the config.")
+            raise Exception('No access configured')
 
     def __stop__(self):  # TODO:
         pass
