@@ -19,7 +19,7 @@ eg.RegisterPlugin(
 
 from functools import partial
 from pywebostv.discovery import discover
-from pywebostv.controls import MediaControl, TvControl, SystemControl, ApplicationControl, InputControl, SourceControl
+from pywebostv.controls import MediaControl, TvControl, SystemControl, ApplicationControl, InputControl, SourceControl, AudioOutputSource
 
 
 def control_events(status_of_call, payload, control=None, self=None):
@@ -43,9 +43,102 @@ def control_events(status_of_call, payload, control=None, self=None):
         eg.PrintError("Error message: ", control, payload)
 
 
+class MediaControlCTRL(eg.ActionClass):
+    name = "MediaControl"
+    description = "MediaControl commands"
+    def __call__(self, Function, Parameters):
+        try:
+            try:
+                media = self.plugin.controls["MediaControl"]
+            except KeyError:
+                self.plugin.controls["MediaControl"] = globals()["MediaControl"](self.plugin.client)
+                media = self.plugin.controls["MediaControl"]
+
+            control_type = media.COMMANDS[Function].get('args', ['No params'])[0]
+            if control_type is int:
+                Parameters = int(Parameters)
+            elif control_type is bool:
+                Parameters = bool(Parameters == 'True')
+            elif control_type is AudioOutputSource:
+                Parameters = AudioOutputSource(Parameters)
+            return media.exec_command(Function, media.COMMANDS[Function])(Parameters)
+        except IOError:
+            eg.PrintError('Not a valid option') # todo:
+        except Exception:
+            import traceback
+            eg.PrintError('Sum bad happen1', traceback.print_exc()) # todo:
+
+    def Configure(self, Function="", Parameters=""):
+        class Config(eg.ConfigPanel):
+            def __init__(self, *args, **kwds):
+                panel = args[0]
+                Function = args[1]
+                super(Config, self).__init__(panel) # *args, **kwds
+
+                sizer_1 = wx.BoxSizer(wx.VERTICAL)
+
+                sizer_3 = wx.BoxSizer(wx.HORIZONTAL)
+                sizer_1.Add(sizer_3, 1, wx.EXPAND, 0)
+
+                label_1 = wx.StaticText(self, wx.ID_ANY, "Command")
+                sizer_3.Add(label_1, 0, 0, 0)
+
+                try:
+                    self.media = panel.plugin.controls["MediaControl"]
+                except KeyError:
+                    panel.plugin.controls["MediaControl"] = globals()["MediaControl"](panel.plugin.client)
+                    self.media = panel.plugin.controls["MediaControl"]
+
+                self.combo_box_1 = wx.ComboBox(self, wx.ID_ANY, value=Function, choices=self.media.COMMANDS.keys(), style=wx.CB_DROPDOWN | wx.CB_SORT)
+                sizer_3.Add(self.combo_box_1, 0, 0, 0)
+
+                sizer_4 = wx.BoxSizer(wx.HORIZONTAL)
+                sizer_1.Add(sizer_4, 1, wx.EXPAND, 0)
+
+                label_2 = wx.StaticText(self, wx.ID_ANY, "Param")
+                sizer_4.Add(label_2, 0, 0, 0)
+
+                #self.param = wx.TextCtrl(self, wx.ID_ANY, "")
+                self.param = wx.ComboBox(self, wx.ID_ANY, style=wx.CB_DROPDOWN)
+                self.param.Disable()
+                sizer_4.Add(self.param, 0, 0, 0)
+                self.sizer_4 = sizer_4
+
+                self.syntax = wx.StaticText(self, wx.ID_ANY, "Syntax")
+                sizer_1.Add(self.syntax, 0, 0, 0)
+
+                self.SetSizer(sizer_1)
+                sizer_1.Fit(self)
+
+                self.Layout()
+
+                self.Bind(wx.EVT_COMBOBOX, self.Change_function_event, self.combo_box_1)
+                #self.Bind(wx.EVT_TEXT, self.OnEdit, self.param)
+
+            def Change_function_event(self, event):  # wxGlade: MyDialog1.<event_handler>
+                control_type = self.media.COMMANDS[event.GetEventObject().GetValue()].get('args', ['No params'])[0]
+                if control_type == 'No params':
+                    self.param.Disable()
+                    self.syntax.SetLabel('')
+                    return
+                if control_type is int:
+                    pass
+                elif control_type is bool:
+                    self.param.SetItems(['False', 'True'])
+                elif control_type is AudioOutputSource:
+                    self.param.SetItems([item.data for item in self.media.list_audio_output_sources()])
+                self.param.Enable()
+                self.syntax.SetLabel(str(control_type))
+
+        panel = Config(self, Function)
+
+        while panel.Affirmed():
+            panel.SetResult(panel.combo_box_1.GetValue(), panel.param.GetValue())
+
+
 class WebOS(eg.PluginClass):
     def __init__(self):  # TODO:
-        pass
+        self.AddAction(MediaControlCTRL)
 
     def Configure(self, IP='', Code='', Subscriptions=[]):  # TODO: Separate args or combined?
         def initPanel(self):
@@ -176,7 +269,7 @@ class WebOS(eg.PluginClass):
             raise Exception('No access configured')
 
         self.client = WebOSClient(IP)
-        self.client.connect()
+        self.client.connect() # todo: handle connection error
         for status in self.client.register({'client_key': Code}):
             if status is not WebOSClient.REGISTERED:
                 eg.PrintError("WebOS: Device registration problem", status)
