@@ -43,16 +43,20 @@ def control_events(status_of_call, payload, control=None, self=None):
         eg.PrintError("Error message: ", control, payload)
 
 
+def get_control(self):
+    try:
+        return self.plugin.controls[self.name]
+    except KeyError:
+        self.plugin.controls[self.name] = globals()[self.name](self.plugin.client)
+        return self.plugin.controls[self.name]
+
+
 class MediaControlCTRL(eg.ActionClass):
     name = "MediaControl"
-    description = "MediaControl commands"
+    description = "{0} commands".format(name)
     def __call__(self, Function, Parameters):
         try:
-            try:
-                media = self.plugin.controls["MediaControl"]
-            except KeyError:
-                self.plugin.controls["MediaControl"] = globals()["MediaControl"](self.plugin.client)
-                media = self.plugin.controls["MediaControl"]
+            media = get_control(self)
 
             control_type = media.COMMANDS[Function].get('args', ['No params'])[0]
             if control_type is int:
@@ -83,11 +87,7 @@ class MediaControlCTRL(eg.ActionClass):
                 label_1 = wx.StaticText(self, wx.ID_ANY, "Command")
                 sizer_3.Add(label_1, 0, 0, 0)
 
-                try:
-                    self.media = panel.plugin.controls["MediaControl"]
-                except KeyError:
-                    panel.plugin.controls["MediaControl"] = globals()["MediaControl"](panel.plugin.client)
-                    self.media = panel.plugin.controls["MediaControl"]
+                self.media = get_control(panel)
 
                 self.combo_box_1 = wx.ComboBox(self, wx.ID_ANY, value=Function, choices=self.media.COMMANDS.keys(), style=wx.CB_DROPDOWN | wx.CB_SORT)
                 sizer_3.Add(self.combo_box_1, 0, 0, 0)
