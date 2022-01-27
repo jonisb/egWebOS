@@ -19,7 +19,7 @@ eg.RegisterPlugin(
 
 from functools import partial
 from pywebostv.discovery import discover
-from pywebostv.controls import MediaControl, TvControl, SystemControl, ApplicationControl, InputControl, SourceControl, AudioOutputSource
+from pywebostv.controls import MediaControl, TvControl, SystemControl, ApplicationControl, InputControl, SourceControl, AudioOutputSource, Application
 
 
 def control_events(status_of_call, payload, control=None, self=None):
@@ -58,13 +58,19 @@ class MediaControlCTRL(eg.ActionClass):
         try:
             media = get_control(self)
 
-            control_type = media.COMMANDS[Function].get('args', ['No params'])[0]
-            if control_type is int:
-                Parameters = int(Parameters)
-            elif control_type is bool:
-                Parameters = bool(Parameters == 'True')
-            elif control_type is AudioOutputSource:
-                Parameters = AudioOutputSource(Parameters)
+            try:
+                control_type = media.COMMANDS[Function].get('args', [])[0]
+            except IndexError:
+                pass
+            else:
+                if control_type is int:
+                    Parameters = int(Parameters)
+                elif control_type is bool:
+                    Parameters = bool(Parameters == 'True')
+                elif control_type is AudioOutputSource:
+                    Parameters = AudioOutputSource(Parameters)
+                elif control_type is Application:
+                    Parameters = Application({'id': Parameters})
             return media.exec_command(Function, media.COMMANDS[Function])(Parameters)
         except IOError:
             eg.PrintError('Not a valid option') # todo:
@@ -116,19 +122,24 @@ class MediaControlCTRL(eg.ActionClass):
                 #self.Bind(wx.EVT_TEXT, self.OnEdit, self.param)
 
             def Change_function_event(self, event):  # wxGlade: MyDialog1.<event_handler>
-                control_type = self.media.COMMANDS[event.GetEventObject().GetValue()].get('args', ['No params'])[0]
-                if control_type == 'No params':
+                try:
+                    control_type = self.media.COMMANDS[event.GetEventObject().GetValue()].get('args', [])[0]
+                except IndexError:
                     self.param.Disable()
                     self.syntax.SetLabel('')
                     return
-                if control_type is int:
-                    pass
-                elif control_type is bool:
-                    self.param.SetItems(['False', 'True'])
-                elif control_type is AudioOutputSource:
-                    self.param.SetItems([item.data for item in self.media.list_audio_output_sources()])
-                self.param.Enable()
-                self.syntax.SetLabel(str(control_type))
+                else:
+                    if control_type is int:
+                        pass
+                    elif control_type is bool:
+                        self.param.SetItems(['False', 'True'])
+                    elif control_type is AudioOutputSource:
+                        self.param.SetItems([item.data for item in self.media.list_audio_output_sources()])
+                    elif control_type is Application:
+                        self.param.SetItems([item.data['id'] for item in self.media.list_apps()])
+
+                    self.param.Enable()
+                    self.syntax.SetLabel(str(control_type))
 
         panel = Config(self, Function)
 
