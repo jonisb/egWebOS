@@ -162,12 +162,95 @@ class InputControlCTRL(MediaControlCTRL):
     description = "{0} commands".format(name)
 
 
+class InputControl2CTRL(eg.ActionClass):
+    name = "InputControl"
+    description = "{0} commands".format(name)
+    def __call__(self, Function, Parameters):
+            media = get_control(self)
+
+            control_type = media.INPUT_COMMANDS[Function]['command']
+
+            if control_type[0][1] == 'move':
+                pass
+            elif control_type[0][1] == 'scroll':
+                pass
+            try:
+                media.connect_input()
+                return media.exec_mouse_command(Function, media.INPUT_COMMANDS[Function])(Parameters)
+            except Exception:
+                import traceback
+                eg.PrintError('Sum bad happen1', traceback.print_exc()) # todo:
+            else:
+                media.disconnect_input()
+
+    def Configure(self, Function="", Parameters=""):
+        class Config(eg.ConfigPanel):
+            def __init__(self, *args, **kwds):
+                panel = args[0]
+                Function = args[1]
+                super(Config, self).__init__(panel) # *args, **kwds
+
+                sizer_1 = wx.BoxSizer(wx.VERTICAL)
+
+                sizer_3 = wx.BoxSizer(wx.HORIZONTAL)
+                sizer_1.Add(sizer_3, 1, wx.EXPAND, 0)
+
+                label_1 = wx.StaticText(self, wx.ID_ANY, "Command")
+                sizer_3.Add(label_1, 0, 0, 0)
+
+                self.media = get_control(panel)
+
+                self.combo_box_1 = wx.ComboBox(self, wx.ID_ANY, value=Function, choices=self.media.INPUT_COMMANDS.keys(), style=wx.CB_DROPDOWN | wx.CB_SORT)
+                sizer_3.Add(self.combo_box_1, 0, 0, 0)
+
+                sizer_4 = wx.BoxSizer(wx.HORIZONTAL)
+                sizer_1.Add(sizer_4, 1, wx.EXPAND, 0)
+
+                label_2 = wx.StaticText(self, wx.ID_ANY, "Param")
+                sizer_4.Add(label_2, 0, 0, 0)
+
+                #self.param = wx.TextCtrl(self, wx.ID_ANY, "")
+                self.param = wx.ComboBox(self, wx.ID_ANY, style=wx.CB_DROPDOWN)
+                self.param.Disable()
+                sizer_4.Add(self.param, 0, 0, 0)
+                self.sizer_4 = sizer_4
+
+                self.syntax = wx.StaticText(self, wx.ID_ANY, "Syntax")
+                sizer_1.Add(self.syntax, 0, 0, 0)
+
+                self.SetSizer(sizer_1)
+                sizer_1.Fit(self)
+
+                self.Layout()
+
+                self.Bind(wx.EVT_COMBOBOX, self.Change_function_event, self.combo_box_1)
+                #self.Bind(wx.EVT_TEXT, self.OnEdit, self.param)
+
+            def Change_function_event(self, event):  # wxGlade: MyDialog1.<event_handler>
+                control_type = self.media.INPUT_COMMANDS[event.GetEventObject().GetValue()]['command']
+                if control_type[0][1] == 'move':
+                    self.param.Enable()
+                    self.syntax.SetLabel(', '.join([type[0] for type in control_type[1:]]))
+                elif control_type[0][1] == 'scroll':
+                    self.param.Enable()
+                    self.syntax.SetLabel(', '.join([type[0] for type in control_type[1:]]))
+                else:
+                    self.param.Disable()
+                    self.syntax.SetLabel('')
+
+        panel = Config(self, Function)
+
+        while panel.Affirmed():
+            panel.SetResult(panel.combo_box_1.GetValue(), panel.param.GetValue())
+
+
 class WebOS(eg.PluginClass):
     def __init__(self):  # TODO:
         self.AddAction(MediaControlCTRL)
         self.AddAction(SystemControlCTRL)
         self.AddAction(ApplicationControlCTRL)
         self.AddAction(InputControlCTRL)
+        self.AddAction(InputControl2CTRL)
 
     def Configure(self, IP='', Code='', Subscriptions=[]):  # TODO: Separate args or combined?
         def initPanel(self):
