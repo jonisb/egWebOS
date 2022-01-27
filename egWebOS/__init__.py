@@ -147,9 +147,27 @@ class MediaControlCTRL(eg.ActionClass):
             panel.SetResult(panel.combo_box_1.GetValue(), panel.param.GetValue())
 
 
+class SystemControlCTRL(MediaControlCTRL):
+    name = "SystemControl"
+    description = "{0} commands".format(name)
+
+
+class ApplicationControlCTRL(MediaControlCTRL):
+    name = "ApplicationControl"
+    description = "{0} commands".format(name)
+
+
+class InputControlCTRL(MediaControlCTRL):
+    name = "InputControl"
+    description = "{0} commands".format(name)
+
+
 class WebOS(eg.PluginClass):
     def __init__(self):  # TODO:
         self.AddAction(MediaControlCTRL)
+        self.AddAction(SystemControlCTRL)
+        self.AddAction(ApplicationControlCTRL)
+        self.AddAction(InputControlCTRL)
 
     def Configure(self, IP='', Code='', Subscriptions=[]):  # TODO: Separate args or combined?
         def initPanel(self):
