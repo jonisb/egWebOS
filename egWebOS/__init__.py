@@ -19,7 +19,7 @@ eg.RegisterPlugin(
 
 from functools import partial
 from pywebostv.discovery import discover
-from pywebostv.controls import MediaControl, TvControl, SystemControl, ApplicationControl, InputControl, SourceControl, AudioOutputSource, Application
+from pywebostv.controls import MediaControl, TvControl, SystemControl, ApplicationControl, InputControl, SourceControl, AudioOutputSource, Application, InputSource
 
 
 def control_events(status_of_call, payload, control=None, self=None):
@@ -71,6 +71,9 @@ class MediaControlCTRL(eg.ActionClass):
                     Parameters = AudioOutputSource(Parameters)
                 elif control_type is Application:
                     Parameters = Application({'id': Parameters})
+                elif control_type is InputSource:
+                    Parameters = InputSource({'id': Parameters, 'label': Parameters})
+
             return media.exec_command(Function, media.COMMANDS[Function])(Parameters)
         except IOError:
             eg.PrintError('Not a valid option') # todo:
@@ -137,6 +140,8 @@ class MediaControlCTRL(eg.ActionClass):
                         self.param.SetItems([item.data for item in self.media.list_audio_output_sources()])
                     elif control_type is Application:
                         self.param.SetItems([item.data['id'] for item in self.media.list_apps()])
+                    elif control_type is InputSource:
+                        self.param.SetItems([item.data['id'] for item in self.media.list_sources()])
 
                     self.param.Enable()
                     self.syntax.SetLabel(str(control_type))
@@ -145,6 +150,11 @@ class MediaControlCTRL(eg.ActionClass):
 
         while panel.Affirmed():
             panel.SetResult(panel.combo_box_1.GetValue(), panel.param.GetValue())
+
+
+class TvControlCTRL(MediaControlCTRL):
+    name = "TvControl"
+    description = "{0} commands".format(name)
 
 
 class SystemControlCTRL(MediaControlCTRL):
@@ -159,6 +169,11 @@ class ApplicationControlCTRL(MediaControlCTRL):
 
 class InputControlCTRL(MediaControlCTRL):
     name = "InputControl"
+    description = "{0} commands".format(name)
+
+
+class SourceControlCTRL(MediaControlCTRL):
+    name = "SourceControl"
     description = "{0} commands".format(name)
 
 
@@ -247,10 +262,12 @@ class InputControl2CTRL(eg.ActionClass):
 class WebOS(eg.PluginClass):
     def __init__(self):  # TODO:
         self.AddAction(MediaControlCTRL)
+        self.AddAction(TvControlCTRL)
         self.AddAction(SystemControlCTRL)
         self.AddAction(ApplicationControlCTRL)
         self.AddAction(InputControlCTRL)
         self.AddAction(InputControl2CTRL)
+        self.AddAction(SourceControlCTRL)
 
     def Configure(self, IP='', Code='', Subscriptions=[]):  # TODO: Separate args or combined?
         def initPanel(self):
