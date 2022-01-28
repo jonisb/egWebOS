@@ -26,7 +26,7 @@ jobs:
         shell: bash
         run: |
           git clone --branch "0.4.2" https://github.com/Lawouach/WebSocket-for-Python
-          mv WebSocket-for-Python\ws4py egWebOS
+          mv WebSocket-for-Python/ws4py egWebOS
 
       - name: pack plugin
         shell: bash
