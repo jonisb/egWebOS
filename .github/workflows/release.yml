@@ -72,3 +72,4 @@ jobs:
         shell: bash
         run: gh release create ${{ steps.get_version.outputs.version }} -t "WebOS connect ${{ steps.get_version.outputs.version }}" -n "New version" ./*.egplugin
         env:
+GITHUB_TOKEN: ${{secrets.PACKAGES_GITHUB_TOKEN}}
