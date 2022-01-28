@@ -16,6 +16,16 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v2
 
+      - name: Get PyWebOSTV
+        shell: bash
+        run: |
+          git clone https://github.com/supersaiyanmode/PyWebOSTV
+
+      - name: Get ws4py
+        shell: bash
+        run: |
+          git clone --branch "0.4.2" git@github.com:Lawouach/WebSocket-for-Python.git
+
       - name: pack plugin
         shell: bash
         run: |
@@ -25,5 +35,6 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: result
-          path: ./test.egplugin
+#          path: ./test.egplugin
+          path: ./
           retention-days: 1
