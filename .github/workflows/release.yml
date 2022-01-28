@@ -24,7 +24,7 @@ jobs:
       - name: Get ws4py
         shell: bash
         run: |
-          git clone --branch "0.4.2" git@github.com:Lawouach/WebSocket-for-Python.git
+          git clone --branch "0.4.2" https://github.com/Lawouach/WebSocket-for-Python
 
       - name: pack plugin
         shell: bash
