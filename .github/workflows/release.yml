@@ -19,7 +19,7 @@ jobs:
       - name: pack plugin
         shell: bash
         run: |
-          7z a -tzip test0.5.egplugin ./*
+          7z a -tzip test0.5.egplugin ./egWebOS
           7z a -tzip test0.5.egplugin ./egWebOS/info.py
 
       - name: Get PyWebOSTV
@@ -38,7 +38,7 @@ jobs:
       - name: pack plugin
         shell: bash
         run: |
-          7z a -tzip test0.4.egplugin ./*
+          7z a -tzip test0.4.egplugin ./egWebOS
           7z a -tzip test0.4.egplugin ./egWebOS/info.py
       - name: Upload result to cache
         uses: actions/upload-artifact@v2
