@@ -1,0 +1,39 @@
+diff ./connection.py "D:\\Documents\\!Projects\\EventGhost\\egWebOS\\egWebOS\\pywebostv/connection.py"
+140c140
+<         ws_url = "ws://{}:3000/".format(host)
+---
+>         ws_url = "ws://{0}:3000/".format(host)
+diff ./controls.py "D:\\Documents\\!Projects\\EventGhost\\egWebOS\\egWebOS\\pywebostv/controls.py"
+8c8
+< from queue import Empty
+---
+> from Queue import Empty
+42c42,45
+<         return {k: process_payload(v, *args, **kwargs) for k, v in obj.items()}
+---
+>         _ = {}
+>         for k, v in obj.items():
+>             _[k] = process_payload(v, *args, **kwargs)
+>         return _
+diff ./discovery.py "D:\\Documents\\!Projects\\EventGhost\\egWebOS\\egWebOS\\pywebostv/discovery.py"
+67c67
+<         return {urlparse(x).hostname for x in locations}
+---
+>         return set(urlparse(x).hostname for x in locations)
+69c69
+<         return {x for x in locations}
+---
+>         return set(x for x in locations)
+diff ./model.py "D:\\Documents\\!Projects\\EventGhost\\egWebOS\\egWebOS\\pywebostv/model.py"
+10c10
+<         return "<Application '{}'>".format(self["title"])
+---
+>         return "<Application '{0}'>".format(self["title"])
+22c22
+<         return "<InputSource '{}'>".format(self["label"])
+---
+>         return "<InputSource '{0}'>".format(self["label"])
+30c30
+<         return "<AudioOutputSource '{}'>".format(self.data)
+---
+>         return "<AudioOutputSource '{0}'>".format(self.data)
