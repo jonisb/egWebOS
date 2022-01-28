@@ -20,6 +20,7 @@ jobs:
         shell: bash
         run: |
           git clone https://github.com/supersaiyanmode/PyWebOSTV
+          patch -d PyWebOSTV/pywebostv < pywebostv.diff
           mv PyWebOSTV/pywebostv egWebOS
 
       - name: Get ws4py
