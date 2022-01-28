@@ -16,11 +16,15 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v2
 
+      - name: Get version
+        id: get_version
+        uses: battila7/get-version-action@v2
+
       - name: pack plugin
         shell: bash
         run: |
-          7z a -tzip test0.5.egplugin ./egWebOS
-          7z a -tzip test0.5.egplugin ./egWebOS/info.py
+          7z a -tzip egWebOS_0.5_${{ steps.get_version.outputs.version }}.egplugin ./egWebOS
+          7z a -tzip egWebOS_0.5_${{ steps.get_version.outputs.version }}.egplugin ./egWebOS/info.py
 
       - name: Get PyWebOSTV
         shell: bash
@@ -38,12 +42,33 @@ jobs:
       - name: pack plugin
         shell: bash
         run: |
-          7z a -tzip test0.4.egplugin ./egWebOS
-          7z a -tzip test0.4.egplugin ./egWebOS/info.py
+          7z a -tzip egWebOS_0.4_${{ steps.get_version.outputs.version }}.egplugin ./egWebOS
+          7z a -tzip egWebOS_0.4_${{ steps.get_version.outputs.version }}.egplugin ./egWebOS/info.py
       - name: Upload result to cache
         uses: actions/upload-artifact@v2
         with:
           name: result
-#          path: ./test.egplugin
-          path: ./test*
+          path: ./egWebOS_*
           retention-days: 1
+
+  create-release:
+    needs: [windows-build]
+    runs-on: windows-2019
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Get version
+        id: get_version
+        uses: battila7/get-version-action@v2
+
+      - name: Download result
+        uses: actions/download-artifact@v2
+        with:
+          name: result
+
+      - name: Create release
+        shell: bash
+        run: gh release create ${{ steps.get_version.outputs.version }} -t "WebOS connect ${{ steps.get_version.outputs.version }}" -n "New version" ./*.egplugin
+        env:
