@@ -1,0 +1,28 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  windows-build:
+    strategy:
+      matrix:
+        arch: [ x86 ]
+
+    runs-on: windows-2019
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: pack plugin
+        shell: bash
+        run: |
+          7z a test.zip ./egWebOS/*
+      - name: Upload result to cache
+        uses: actions/upload-artifact@v2
+        with:
+          name: result
+          path: ./test.zip
+          retention-days: 1
