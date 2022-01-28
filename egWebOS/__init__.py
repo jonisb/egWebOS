@@ -3,18 +3,19 @@
 WebOS support plugin for EventGhost
 """
 from __future__ import print_function, unicode_literals
+import info
 from pywebostv.connection import WebOSClient
 
 eg.RegisterPlugin(
-    name="WebOS connect",
-    author="Joni Borén",
-    version="0.0.0",
+    name=info.name,
+    author=info.author,
+    version=info.version,
     kind="external",
-    guid="{523fa3a6-f1a9-405d-a28a-8d211f76562b}",
+    guid=info.guid,
     canMultiLoad=True,
     createMacrosOnAdd=False,
-    url="https://github.com/jonisb/egWebOS/issues",  # TODO: Create support thread and link.
-    description="""Adds actions to control WebOS devices like LG TVs.""",  # TODO: Add description, use <rst>?
+    url=info.url,
+    description=info.description
 )
 
 from functools import partial
