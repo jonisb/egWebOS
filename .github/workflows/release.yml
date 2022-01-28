@@ -20,11 +20,13 @@ jobs:
         shell: bash
         run: |
           git clone https://github.com/supersaiyanmode/PyWebOSTV
+          move /s PyWebOSTV/pywebostv egWebOS
 
       - name: Get ws4py
         shell: bash
         run: |
           git clone --branch "0.4.2" https://github.com/Lawouach/WebSocket-for-Python
+          move /s \WebSocket-for-Python\ws4py egWebOS
 
       - name: pack plugin
         shell: bash
