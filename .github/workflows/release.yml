@@ -19,8 +19,8 @@ jobs:
       - name: pack plugin
         shell: bash
         run: |
-          7z a test.egplugin ./*
-          7z a test.egplugin ./egWebOS/info.py
+          7z a -tzip test.egplugin ./*
+          7z a -tzip test.egplugin ./egWebOS/info.py
       - name: Upload result to cache
         uses: actions/upload-artifact@v2
         with:
