@@ -37,6 +37,8 @@ jobs:
         shell: bash
         run: |
           git clone --branch "0.5.1" https://github.com/Lawouach/WebSocket-for-Python
+          rm WebSocket-for-Python/ws4py/async_websocket.py
+          rm WebSocket-for-Python/ws4py/server/tulipserver.py
           mv WebSocket-for-Python/ws4py egWebOS
 
       - name: pack plugin
