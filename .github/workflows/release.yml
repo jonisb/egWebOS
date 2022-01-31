@@ -52,6 +52,7 @@ jobs:
           retention-days: 1
 
   create-release:
+    needs: [windows-build]
     runs-on: windows-2019
     permissions:
       contents: write
