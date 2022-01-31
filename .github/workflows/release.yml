@@ -52,25 +52,13 @@ jobs:
           retention-days: 1
 
   create-release:
-    needs: [windows-build]
     runs-on: windows-2019
-
+    permissions:
+      contents: write
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v2
-
-      - name: Get version
-        id: get_version
-        uses: battila7/get-version-action@v2
-
-      - name: Download result
-        uses: actions/download-artifact@v2
-        with:
-          name: result
-
-      - name: Create release
-        shell: bash
-        run: gh release create ${{ steps.get_version.outputs.version }} -t "WebOS connect ${{ steps.get_version.outputs.version }}" -n "New version" ./*.egplugin
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-					
+    - uses: actions/checkout@v2
+    - uses: ncipollo/release-action@v1
+      with:
+        artifacts: "./*.egplugin"
+        generateReleaseNotes: true
+        token: ${{ secrets.GITHUB_TOKEN }}					
