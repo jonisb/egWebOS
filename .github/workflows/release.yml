@@ -56,7 +56,12 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v2
+#    - uses: actions/checkout@v2
+		- name: Download result
+			uses: actions/download-artifact@v2
+			with:
+				name: result
+
     - uses: ncipollo/release-action@v1
       with:
         artifacts: "./*.egplugin"
